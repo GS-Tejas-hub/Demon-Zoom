@@ -1,0 +1,815 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      /* ============================ fonts ============================ */
+      @font-face {
+        font-family: "Chakra Petch";
+        src: url("fonts/chakra-600.woff2") format("woff2");
+        font-weight: 600;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "Chakra Petch";
+        src: url("fonts/chakra-700.woff2") format("woff2");
+        font-weight: 700;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "JetBrains Mono";
+        src: url("fonts/mono-500.woff2") format("woff2");
+        font-weight: 500;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "JetBrains Mono";
+        src: url("fonts/mono-700.woff2") format("woff2");
+        font-weight: 700;
+        font-display: swap;
+      }
+
+      /* ============================ tokens ============================ */
+      :root {
+        --bg: #070a11;
+        --bg2: #0d1117;
+        --cyan: #7df9ff;
+        --green: #00ffa3;
+        --pink: #ff6b9d;
+        --text: #cdd8e6;
+        --muted: #5b6b83;
+        --surface: rgba(125, 249, 255, 0.035);
+        --border: rgba(125, 249, 255, 0.14);
+        --accent: var(--cyan); /* per-panel accent */
+        --display: "Chakra Petch", sans-serif;
+        --mono: "JetBrains Mono", ui-monospace, monospace;
+      }
+
+      * { box-sizing: border-box; }
+
+      html { color-scheme: dark; overflow: hidden; }
+
+      body {
+        width: 320px;
+        margin: 0;
+        padding: 0;
+        position: relative;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--mono);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* ============================ atmosphere ============================ */
+      .aurora {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        z-index: 0;
+        filter: blur(46px) saturate(140%);
+        opacity: 0.55;
+        pointer-events: none;
+      }
+      .blob {
+        position: absolute;
+        width: 240px;
+        height: 240px;
+        border-radius: 50%;
+      }
+      .blob.c {
+        background: radial-gradient(circle, var(--cyan), transparent 68%);
+        top: -60px;
+        left: -40px;
+        animation: drift1 14s ease-in-out infinite;
+      }
+      .blob.g {
+        background: radial-gradient(circle, var(--green), transparent 68%);
+        bottom: -80px;
+        right: -30px;
+        animation: drift2 17s ease-in-out infinite;
+      }
+      .blob.p {
+        background: radial-gradient(circle, var(--pink), transparent 70%);
+        top: 40px;
+        right: -70px;
+        width: 200px;
+        height: 200px;
+        animation: drift3 20s ease-in-out infinite;
+      }
+      @keyframes drift1 {
+        50% { transform: translate(60px, 50px) scale(1.15); }
+      }
+      @keyframes drift2 {
+        50% { transform: translate(-50px, -40px) scale(1.2); }
+      }
+      @keyframes drift3 {
+        50% { transform: translate(-40px, 70px) scale(0.85); }
+      }
+
+      .grain {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+        opacity: 0.05;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+      .scanlines {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+        opacity: 0.5;
+        background: repeating-linear-gradient(
+          0deg,
+          rgba(0, 0, 0, 0) 0,
+          rgba(0, 0, 0, 0) 2px,
+          rgba(0, 0, 0, 0.18) 3px
+        );
+      }
+
+      .app {
+        position: relative;
+        z-index: 2;
+        padding: 16px 16px 16px;
+        border-top: 1px solid rgba(125, 249, 255, 0.12);
+        background: linear-gradient(
+          180deg,
+          rgba(13, 17, 23, 0.72),
+          rgba(7, 10, 17, 0.88)
+        );
+        backdrop-filter: blur(2px);
+      }
+
+      /* ============================ header ============================ */
+      .head {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        margin-bottom: 15px;
+        animation: rise 0.5s 0.02s both;
+      }
+      .glyph {
+        width: 34px;
+        height: 34px;
+        flex: none;
+        filter: drop-shadow(0 0 6px var(--cyan));
+        animation: floaty 4s ease-in-out infinite;
+      }
+      .glyph svg { display: block; }
+      .wordmark { flex: 1 1 auto; min-width: 0; }
+      .wordmark h1 {
+        margin: 0;
+        font-family: var(--display);
+        font-weight: 700;
+        font-size: 18px;
+        letter-spacing: 1px;
+        line-height: 1;
+        white-space: nowrap;
+        background: linear-gradient(92deg, var(--cyan), var(--green) 55%, var(--pink));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        filter: drop-shadow(0 0 10px rgba(125, 249, 255, 0.25));
+      }
+      .wordmark .tag {
+        margin: 4px 0 0;
+        font-size: 9.5px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .live {
+        position: absolute;
+        top: 1px;
+        right: 0;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 8.5px;
+        letter-spacing: 1.5px;
+        color: var(--green);
+      }
+      .live i {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 8px var(--green);
+        animation: pulse 1.6s ease-in-out infinite;
+      }
+
+      /* ============================ tabs ============================ */
+      .tabs {
+        position: relative;
+        display: flex;
+        padding: 4px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: rgba(0, 0, 0, 0.35);
+        margin-bottom: 16px;
+        animation: rise 0.5s 0.08s both;
+      }
+      .tab-ind {
+        position: absolute;
+        top: 4px;
+        bottom: 4px;
+        left: 4px;
+        width: calc(50% - 4px);
+        border-radius: 8px;
+        background: linear-gradient(180deg, rgba(125, 249, 255, 0.22), rgba(125, 249, 255, 0.08));
+        border: 1px solid rgba(125, 249, 255, 0.4);
+        box-shadow: 0 0 16px rgba(125, 249, 255, 0.28), inset 0 0 12px rgba(125, 249, 255, 0.15);
+        transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .tabs:has(#tab-media.active) .tab-ind { transform: translateX(100%); }
+      .tabs button {
+        position: relative;
+        z-index: 1;
+        flex: 1;
+        border: none;
+        background: transparent;
+        color: var(--muted);
+        font-family: var(--display);
+        font-weight: 600;
+        font-size: 12px;
+        letter-spacing: 2px;
+        padding: 8px 0;
+        cursor: pointer;
+        transition: color 0.25s, text-shadow 0.25s;
+      }
+      .tabs button.active {
+        color: var(--cyan);
+        text-shadow: 0 0 10px rgba(125, 249, 255, 0.6);
+      }
+
+      /* ============================ panels ============================ */
+      /* Both panels share one grid cell, so the popup is always as tall as the
+         TALLER tab — a constant, content-driven height. No pixel guessing, no
+         resize when switching tabs, so it can never get stuck tall. */
+      .stage { display: grid; }
+      .stage > .panel { grid-column: 1; grid-row: 1; }
+      .panel {
+        display: flex;
+        flex-direction: column;
+        visibility: hidden;
+        opacity: 0;
+        pointer-events: none;
+      }
+      .panel.active {
+        visibility: visible;
+        opacity: 1;
+        pointer-events: auto;
+        animation: swap 0.4s both;
+      }
+      @keyframes swap {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      #panel-media { --accent: var(--green); }
+
+      /* ============================ toggle row ============================ */
+      .toggle-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding-bottom: 14px;
+        margin-bottom: 14px;
+        border-bottom: 1px dashed rgba(125, 249, 255, 0.12);
+        animation: rise 0.5s 0.14s both;
+      }
+      .toggle-row .label {
+        font-family: var(--display);
+        font-weight: 600;
+        font-size: 13px;
+        letter-spacing: 1.5px;
+      }
+      .toggle-row .sub {
+        font-size: 9.5px;
+        color: var(--muted);
+        margin-top: 3px;
+        letter-spacing: 0.3px;
+      }
+
+      /* neon switch */
+      .switch {
+        position: relative;
+        width: 50px;
+        height: 26px;
+        flex: none;
+        cursor: pointer;
+      }
+      .switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+      .track {
+        position: absolute;
+        inset: 0;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        transition: all 0.3s;
+      }
+      .thumb {
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #6b7688;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .switch input:checked + .track {
+        background: linear-gradient(90deg, rgba(0, 255, 163, 0.25), var(--accent));
+        border-color: var(--accent);
+        box-shadow: 0 0 14px -1px var(--accent), inset 0 0 8px rgba(255, 255, 255, 0.2);
+      }
+      .switch input:checked + .track .thumb {
+        left: 27px;
+        background: #eafcff;
+        box-shadow: 0 0 10px var(--accent);
+      }
+
+      .controls {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        transition: opacity 0.25s, filter 0.25s;
+      }
+      /* Zoom tab has less content — spread it to fill instead of clustering. */
+      #zoomControls { justify-content: space-evenly; }
+      .controls.disabled { opacity: 0.32; filter: grayscale(0.6); pointer-events: none; }
+
+      /* ============================ zoom panel ============================ */
+      .readout {
+        text-align: center;
+        margin-bottom: 12px;
+        animation: rise 0.5s 0.2s both;
+      }
+      .value {
+        font-family: var(--mono);
+        font-weight: 700;
+        font-size: 46px;
+        line-height: 1;
+        letter-spacing: -1px;
+        background: linear-gradient(180deg, #eafdff, var(--cyan));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        filter: drop-shadow(0 0 16px rgba(125, 249, 255, 0.45));
+        transition: filter 0.2s;
+      }
+      .value.kick { animation: kick 0.35s; }
+      @keyframes kick {
+        30% { filter: drop-shadow(0 0 26px rgba(125, 249, 255, 0.85)); transform: scale(1.05); }
+      }
+
+      .slider-wrap { padding: 0 2px; margin-bottom: 16px; animation: rise 0.5s 0.26s both; }
+      input[type="range"] {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 6px;
+        border-radius: 999px;
+        background: linear-gradient(
+          90deg,
+          var(--accent) 0%,
+          var(--accent) var(--fill, 50%),
+          rgba(255, 255, 255, 0.08) var(--fill, 50%)
+        );
+        outline: none;
+        cursor: pointer;
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #eafdff;
+        border: 2px solid #071018;
+        box-shadow: 0 0 12px var(--accent), 0 0 3px var(--accent);
+        cursor: pointer;
+        transition: transform 0.12s;
+      }
+      input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+      /* chips */
+      .presets { display: flex; gap: 7px; animation: rise 0.5s 0.32s both; }
+      .presets.wrap { flex-wrap: wrap; }
+      .chip {
+        flex: 1 1 auto;
+        min-width: 44px;
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        padding: 8px 0;
+        background: var(--surface);
+        color: var(--text);
+        font-family: var(--display);
+        font-weight: 600;
+        font-size: 12px;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: transform 0.14s, border-color 0.2s, color 0.2s, box-shadow 0.2s, background 0.2s;
+      }
+      .chip:hover {
+        transform: translateY(-2px);
+        border-color: var(--accent);
+        color: var(--accent);
+        box-shadow: 0 0 14px -3px var(--accent);
+      }
+      .chip:active { transform: translateY(0) scale(0.96); }
+      .chip.active {
+        background: linear-gradient(180deg, rgba(125, 249, 255, 0.2), rgba(125, 249, 255, 0.06));
+        border-color: var(--accent);
+        color: #eafdff;
+        box-shadow: 0 0 16px -3px var(--accent), inset 0 0 10px rgba(125, 249, 255, 0.12);
+        text-shadow: 0 0 8px var(--accent);
+      }
+
+      /* ============================ media panel ============================ */
+      .info {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: rgba(0, 0, 0, 0.28);
+        padding: 15px 16px;
+        margin-bottom: 16px;
+        animation: rise 0.5s 0.2s both;
+      }
+      .info .row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 11.5px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 6px 0;
+      }
+      .info .row span { color: var(--muted); }
+      .info .row span::before { content: "▸ "; color: rgba(125, 249, 255, 0.4); }
+      .info .row b {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--cyan);
+        text-shadow: 0 0 8px rgba(125, 249, 255, 0.4);
+      }
+      #videoAr { color: var(--green); text-shadow: 0 0 8px rgba(0, 255, 163, 0.4); }
+
+      .stepper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        margin-bottom: 15px;
+        animation: rise 0.5s 0.26s both;
+      }
+      .step {
+        width: 38px;
+        height: 38px;
+        flex: none;
+        border: 1px solid var(--border);
+        border-radius: 50%;
+        background: var(--surface);
+        color: var(--green);
+        font-family: var(--display);
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1;
+        cursor: pointer;
+        transition: transform 0.14s, box-shadow 0.2s, border-color 0.2s;
+      }
+      .step:hover {
+        border-color: var(--green);
+        box-shadow: 0 0 16px -3px var(--green);
+        transform: translateY(-1px);
+      }
+      .step:active { transform: scale(0.9); }
+      .zoomx {
+        min-width: 84px;
+        text-align: center;
+        font-family: var(--mono);
+        font-weight: 700;
+        font-size: 25px;
+        letter-spacing: -0.5px;
+        color: #eafffb;
+        filter: drop-shadow(0 0 12px rgba(0, 255, 163, 0.45));
+      }
+      #panel-media .presets { animation: rise 0.5s 0.32s both; }
+      #panel-media .chip:hover { border-color: var(--green); color: var(--green); box-shadow: 0 0 14px -3px var(--green); }
+      #panel-media .chip.active {
+        background: linear-gradient(180deg, rgba(0, 255, 163, 0.2), rgba(0, 255, 163, 0.06));
+        border-color: var(--green);
+        color: #eafffb;
+        box-shadow: 0 0 16px -3px var(--green), inset 0 0 10px rgba(0, 255, 163, 0.12);
+        text-shadow: 0 0 8px var(--green);
+      }
+      .note {
+        margin-top: 13px;
+        font-size: 9px;
+        line-height: 1.6;
+        letter-spacing: 0.4px;
+        color: var(--muted);
+        text-align: center;
+        animation: rise 0.5s 0.38s both;
+      }
+
+      /* ---- media sub-tabs (RATIO / CROP) ---- */
+      #mediaControls { justify-content: flex-start; }
+      .subtabs {
+        position: relative;
+        display: flex;
+        padding: 3px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: rgba(0, 0, 0, 0.32);
+        margin-bottom: 14px;
+        animation: rise 0.5s 0.18s both;
+      }
+      .subtab-ind {
+        position: absolute;
+        top: 3px;
+        bottom: 3px;
+        left: 3px;
+        width: calc(50% - 3px);
+        border-radius: 7px;
+        background: linear-gradient(180deg, rgba(0, 255, 163, 0.2), rgba(0, 255, 163, 0.05));
+        border: 1px solid rgba(0, 255, 163, 0.4);
+        box-shadow: 0 0 14px rgba(0, 255, 163, 0.24), inset 0 0 10px rgba(0, 255, 163, 0.12);
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .subtabs:has(#sub-tab-crop.active) .subtab-ind { transform: translateX(100%); }
+      .subtabs button {
+        position: relative;
+        z-index: 1;
+        flex: 1;
+        border: none;
+        background: transparent;
+        color: var(--muted);
+        font-family: var(--display);
+        font-weight: 600;
+        font-size: 11px;
+        letter-spacing: 2px;
+        padding: 7px 0;
+        cursor: pointer;
+        transition: color 0.25s, text-shadow 0.25s;
+      }
+      .subtabs button.active {
+        color: var(--green);
+        text-shadow: 0 0 8px rgba(0, 255, 163, 0.5);
+      }
+
+      .substage { display: grid; }
+      .substage > .subpanel { grid-column: 1; grid-row: 1; }
+      .subpanel {
+        display: flex;
+        flex-direction: column;
+        visibility: hidden;
+        opacity: 0;
+        pointer-events: none;
+      }
+      .subpanel.active {
+        visibility: visible;
+        opacity: 1;
+        pointer-events: auto;
+        animation: swap 0.35s both;
+      }
+
+      /* ---- crop preview ---- */
+      .preview {
+        position: relative;
+        height: 122px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 12px;
+        background: repeating-linear-gradient(
+            0deg,
+            rgba(255, 255, 255, 0.035) 0 1px,
+            transparent 1px 8px
+          ),
+          linear-gradient(135deg, #0a191e, #0a1016);
+        animation: rise 0.5s 0.24s both;
+      }
+      .preview .cut {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        transition: flex-basis 0.18s ease;
+        background: repeating-linear-gradient(
+          45deg,
+          rgba(255, 107, 157, 0.3) 0 6px,
+          rgba(255, 107, 157, 0.09) 6px 12px
+        );
+      }
+      .preview .cut span {
+        font-family: var(--display);
+        font-size: 8px;
+        letter-spacing: 2px;
+        color: #ffb3cd;
+      }
+      .preview .win {
+        flex: 1 1 auto;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-top: 1.5px dashed rgba(0, 255, 163, 0.75);
+        border-bottom: 1.5px dashed rgba(0, 255, 163, 0.75);
+        background: rgba(0, 255, 163, 0.06);
+        box-shadow: inset 0 0 22px rgba(0, 255, 163, 0.12);
+      }
+      .preview .win span {
+        font-family: var(--display);
+        font-size: 10px;
+        letter-spacing: 3px;
+        color: var(--green);
+        text-shadow: 0 0 8px rgba(0, 255, 163, 0.55);
+      }
+
+      .splitlabels {
+        display: flex;
+        justify-content: space-between;
+        padding: 0 3px;
+        margin-bottom: 8px;
+        font-size: 9.5px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--muted);
+        animation: rise 0.5s 0.28s both;
+      }
+      .splitlabels b {
+        color: var(--green);
+        font-weight: 700;
+        text-shadow: 0 0 8px rgba(0, 255, 163, 0.4);
+      }
+
+      /* ============================ keyframes ============================ */
+      @keyframes rise {
+        from { opacity: 0; transform: translateY(9px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes floaty {
+        50% { transform: translateY(-3px) rotate(-4deg); }
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.4; transform: scale(0.8); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * { animation: none !important; transition: none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="aurora">
+      <div class="blob c"></div>
+      <div class="blob g"></div>
+      <div class="blob p"></div>
+    </div>
+    <div class="grain"></div>
+    <div class="scanlines"></div>
+
+    <main class="app">
+      <header class="head">
+        <span class="glyph">
+          <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+            <circle cx="15" cy="15" r="9" stroke="#7df9ff" stroke-width="2.4" />
+            <path d="M21.5 21.5L28 28" stroke="#ff6b9d" stroke-width="2.8" stroke-linecap="round" />
+            <path d="M16 9.5l-4 6.2h3.2L14 20.5l5-6.6h-3.3L16 9.5z" fill="#00ffa3" />
+          </svg>
+        </span>
+        <div class="wordmark">
+          <h1>DEMON <span>ZOOM</span></h1>
+          <p class="tag">// zoom with chaos</p>
+        </div>
+        <div class="live"><i></i>ONLINE</div>
+      </header>
+
+      <nav class="tabs">
+        <span class="tab-ind"></span>
+        <button id="tab-zoom" class="active" data-panel="panel-zoom">ZOOM</button>
+        <button id="tab-media" data-panel="panel-media">MEDIA</button>
+      </nav>
+
+      <div class="stage">
+      <!-- ================= ZOOM ================= -->
+      <section id="panel-zoom" class="panel active">
+        <div class="toggle-row">
+          <div>
+            <div class="label">AUTO ZOOM</div>
+            <div class="sub" id="zoomStatus">Applied to every site.</div>
+          </div>
+          <label class="switch" title="Turn on / off">
+            <input type="checkbox" id="zoomToggle" />
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+        </div>
+
+        <div class="controls" id="zoomControls">
+          <div class="readout"><div class="value" id="zoomValue">150%</div></div>
+          <div class="slider-wrap">
+            <input type="range" id="zoomSlider" min="50" max="300" step="10" value="150" />
+          </div>
+          <div class="presets" id="zoomPresets">
+            <button class="chip" data-zoom="100">100</button>
+            <button class="chip" data-zoom="125">125</button>
+            <button class="chip" data-zoom="150">150</button>
+            <button class="chip" data-zoom="175">175</button>
+            <button class="chip" data-zoom="200">200</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= MEDIA ================= -->
+      <section id="panel-media" class="panel">
+        <div class="toggle-row">
+          <div>
+            <div class="label">ZOOM TO FILL</div>
+            <div class="sub" id="mediaStatus">Crop fullscreen video.</div>
+          </div>
+          <label class="switch" title="Turn on / off">
+            <input type="checkbox" id="mediaToggle" />
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+        </div>
+
+        <div class="controls" id="mediaControls">
+          <div class="subtabs">
+            <span class="subtab-ind"></span>
+            <button id="sub-tab-ratio" class="active" data-sub="sub-ratio">RATIO</button>
+            <button id="sub-tab-crop" data-sub="sub-crop">CROP</button>
+          </div>
+
+          <div class="substage">
+            <!-- ---- RATIO sub-tab ---- -->
+            <div id="sub-ratio" class="subpanel active">
+              <div class="info">
+                <div class="row"><span>Monitor</span><b id="monitorAr">—</b></div>
+                <div class="row"><span>Video</span><b id="videoAr">Not detected</b></div>
+              </div>
+
+              <div class="stepper">
+                <button class="step" id="zoomDown" title="Zoom out">−</button>
+                <div class="zoomx" id="mediaZoom">x1.00</div>
+                <button class="step" id="zoomUp" title="Zoom in">+</button>
+              </div>
+
+              <div class="presets wrap" id="mediaPresets">
+                <button class="chip" data-target="auto">Auto</button>
+                <button class="chip" data-target="16:10">16:10</button>
+                <button class="chip" data-target="16:9">16:9</button>
+                <button class="chip" data-target="18:9">18:9</button>
+                <button class="chip" data-target="21:9">21:9</button>
+                <button class="chip" data-target="32:9">32:9</button>
+              </div>
+
+              <div class="note">
+                Crops fullscreen video to devour the black bars — any site,
+                embedded players too. Pure scale, zero stretch.
+              </div>
+            </div>
+
+            <!-- ---- CROP sub-tab ---- -->
+            <div id="sub-crop" class="subpanel">
+              <div class="preview">
+                <div class="cut top" id="cutTop"><span>CUT</span></div>
+                <div class="win"><span>KEEP</span></div>
+                <div class="cut bottom" id="cutBottom"><span>CUT</span></div>
+              </div>
+
+              <div class="splitlabels">
+                <span>Top cut <b id="topCutVal">25%</b></span>
+                <span>Bottom cut <b id="botCutVal">75%</b></span>
+              </div>
+
+              <div class="slider-wrap">
+                <input type="range" id="cropSlider" min="0" max="100" step="5" value="25" />
+              </div>
+
+              <div class="presets" id="alignPresets">
+                <button class="chip" data-top="0">Top</button>
+                <button class="chip" data-top="50">Center</button>
+                <button class="chip" data-top="100">Bottom</button>
+              </div>
+
+              <div class="note">
+                Which part survives the crop. More bottom-cut keeps the top of
+                the frame; more top-cut keeps the bottom.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      </div>
+    </main>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
