@@ -9,6 +9,11 @@
 // iframes (e.g. streaming sites like 9anime).
 
 (() => {
+  // Guard against running twice in the same frame (e.g. when the background
+  // script re-injects us into an already-loaded tab after an update).
+  if (window.__demonZoomLoaded) return;
+  window.__demonZoomLoaded = true;
+
   const DEFAULTS = {
     mediaEnabled: false,
     mediaTarget: "auto",

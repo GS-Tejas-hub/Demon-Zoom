@@ -82,7 +82,34 @@ chrome.storage.onChanged.addListener((changes, area) => {
   }
 });
 
+// After an install/update the content script in already-open tabs is dead, so
+// media-crop changes wouldn't reach them until a manual refresh. Re-inject the
+// fresh content script into every open http(s) tab so it "just works". The
+// script guards against running twice, so this is safe.
+async function injectContentIntoOpenTabs() {
+  try {
+    const tabs = await chrome.tabs.query({
+      url: ["http://*/*", "https://*/*"],
+    });
+    for (const tab of tabs) {
+      chrome.scripting
+        .executeScript({
+          target: { tabId: tab.id, allFrames: true },
+          files: ["content.js"],
+        })
+        .catch(() => {
+          // some tabs (e.g. the Web Store) refuse injection — ignore
+        });
+    }
+  } catch (e) {
+    // ignore
+  }
+}
+
 // Re-apply to every open tab when the extension is installed/updated or the
-// browser starts, so existing tabs get the setting without a manual reload.
-chrome.runtime.onInstalled.addListener(syncAllTabs);
+// browser starts, so existing tabs get the settings without a manual reload.
+chrome.runtime.onInstalled.addListener(() => {
+  syncAllTabs();
+  injectContentIntoOpenTabs();
+});
 chrome.runtime.onStartup.addListener(syncAllTabs);
