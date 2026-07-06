@@ -176,11 +176,13 @@ let media = { enabled: false, target: "auto", adjust: 1, cropTop: 25 };
 let detectedVideoAr = null;
 
 function mediaTargetAr() {
-  return media.target === "auto" ? monitorArValue : NOMINAL[media.target];
+  if (media.target === "auto") return monitorArValue;
+  return NOMINAL[media.target] || monitorArValue;
 }
 
 // Total crop scale (matches what content.js applies).
 function coverScale(vAr) {
+  if (media.target === "native") return 1; // no crop — show provider's aspect
   const t = mediaTargetAr();
   return Math.max(t / vAr, vAr / t);
 }

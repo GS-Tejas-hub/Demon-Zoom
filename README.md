@@ -7,7 +7,7 @@
 <br/><br/>
 
 ![Manifest V3](https://img.shields.io/badge/Manifest-V3-7df9ff?style=for-the-badge&logo=googlechrome&logoColor=black&labelColor=0d1117)
-![Version](https://img.shields.io/badge/version-1.1.2-00ffa3?style=for-the-badge&labelColor=0d1117)
+![Version](https://img.shields.io/badge/version-1.1.3-00ffa3?style=for-the-badge&labelColor=0d1117)
 ![License](https://img.shields.io/badge/license-MIT-ff6b9d?style=for-the-badge&labelColor=0d1117)
 ![Built for ultrawide](https://img.shields.io/badge/built%20for-ultrawide-7df9ff?style=for-the-badge&labelColor=0d1117)
 ![No dependencies](https://img.shields.io/badge/dependencies-0-00ffa3?style=for-the-badge&labelColor=0d1117)

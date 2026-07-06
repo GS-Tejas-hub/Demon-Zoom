@@ -63,8 +63,15 @@
   function cropScale(video) {
     const vAr = videoAr(video);
     if (!vAr) return 1;
-    const t = targetAr();
-    const cover = Math.max(t / vAr, vAr / t);
+    let cover;
+    if (settings.mediaTarget === "native") {
+      // "Native" — no auto-crop; show the provider's own aspect ratio as-is.
+      // The user can still zoom manually, or pick a ratio to crop.
+      cover = 1;
+    } else {
+      const t = targetAr();
+      cover = Math.max(t / vAr, vAr / t);
+    }
     return Math.round(cover * settings.mediaAdjust * 10000) / 10000;
   }
 

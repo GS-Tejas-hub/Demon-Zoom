@@ -497,6 +497,8 @@
         filter: drop-shadow(0 0 12px rgba(0, 255, 163, 0.45));
       }
       #panel-media .presets { animation: rise 0.5s 0.32s both; }
+      /* 7 ratio chips → a tidy 4 + 3 across two rows */
+      #mediaPresets .chip { min-width: 56px; }
       #panel-media .chip:hover { border-color: var(--green); color: var(--green); box-shadow: 0 0 14px -3px var(--green); }
       #panel-media .chip.active {
         background: linear-gradient(180deg, rgba(0, 255, 163, 0.2), rgba(0, 255, 163, 0.06));
@@ -762,6 +764,7 @@
               </div>
 
               <div class="presets wrap" id="mediaPresets">
+                <button class="chip" data-target="native">Native</button>
                 <button class="chip" data-target="auto">Auto</button>
                 <button class="chip" data-target="16:10">16:10</button>
                 <button class="chip" data-target="16:9">16:9</button>
@@ -771,8 +774,8 @@
               </div>
 
               <div class="note">
-                Crops fullscreen video to devour the black bars — any site,
-                embedded players too. Pure scale, zero stretch.
+                <b>Native</b> keeps the original · <b>Auto</b> fills your monitor ·
+                pick a ratio to crop it yourself. Fullscreen only, zero stretch.
               </div>
             </div>
 
